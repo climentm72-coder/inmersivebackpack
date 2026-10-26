@@ -1,0 +1,13 @@
+{
+  "item.inmersivebackpack.smart_backpack": "Mochila Medieval de Viajero",
+  "container.inmersivebackpack.tool_straps": "Herramientas",
+  "container.inmersivebackpack.bedroll": "Manta",
+  "tooltip.inmersivebackpack.smart_backpack.open": "Clic derecho: abrir la mochila",
+  "tooltip.inmersivebackpack.smart_backpack.sleep": "Shift + clic derecho en el suelo: dormir sobre la manta",
+  "message.inmersivebackpack.bedroll.deployed": "Has desplegado tu manta de campaña",
+  "message.inmersivebackpack.bedroll.not_here": "No puedes dormir aquí",
+  "message.inmersivebackpack.bedroll.bad_surface": "Apunta a la parte superior de un bloque sólido",
+  "message.inmersivebackpack.bedroll.no_space": "No hay espacio para tumbarte aquí",
+  "message.inmersivebackpack.bedroll.too_early": "Solo puedes dormir de noche o durante una tormenta",
+  "message.inmersivebackpack.bedroll.monsters": "No puedes dormir con monstruos cerca"
+}

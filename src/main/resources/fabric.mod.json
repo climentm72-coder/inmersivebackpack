@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "inmersivebackpack",
+  "version": "${version}",
+  "name": "Inmersive Backpack",
+  "description": "Mochila Medieval de Viajero: 54 casillas, 2 correas para herramientas y una manta de campana para dormir en cualquier sitio.",
+  "authors": ["Climent"],
+  "license": "MIT",
+  "icon": "assets/inmersivebackpack/textures/item/smart_backpack.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.climent.inmersivebackpack.InmersiveBackpackMod"],
+    "client": ["net.climent.inmersivebackpack.client.InmersiveBackpackClient"]
+  },
+  "mixins": ["inmersivebackpack.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

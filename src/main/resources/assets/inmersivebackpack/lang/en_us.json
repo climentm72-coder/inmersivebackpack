@@ -1,0 +1,13 @@
+{
+  "item.inmersivebackpack.smart_backpack": "Medieval Traveler's Backpack",
+  "container.inmersivebackpack.tool_straps": "Tools",
+  "container.inmersivebackpack.bedroll": "Bedroll",
+  "tooltip.inmersivebackpack.smart_backpack.open": "Right-click: open the backpack",
+  "tooltip.inmersivebackpack.smart_backpack.sleep": "Shift + right-click on the ground: sleep on the bedroll",
+  "message.inmersivebackpack.bedroll.deployed": "You unrolled your bedroll",
+  "message.inmersivebackpack.bedroll.not_here": "You can't sleep here",
+  "message.inmersivebackpack.bedroll.bad_surface": "Aim at the top of a solid block",
+  "message.inmersivebackpack.bedroll.no_space": "There isn't enough room to lie down here",
+  "message.inmersivebackpack.bedroll.too_early": "You can only sleep at night or during a thunderstorm",
+  "message.inmersivebackpack.bedroll.monsters": "You can't sleep with monsters nearby"
+}
