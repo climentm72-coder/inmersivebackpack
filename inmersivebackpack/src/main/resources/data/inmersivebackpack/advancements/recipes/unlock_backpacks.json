@@ -1,0 +1,16 @@
+{
+  "criteria": {
+    "auto": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [
+    ["auto"]
+  ],
+  "rewards": {
+    "recipes": [
+      "inmersivebackpack:smart_backpack",
+      "inmersivebackpack:smart_backpack_rabbit"
+    ]
+  }
+}

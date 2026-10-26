@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "inmersivebackpack",
+  "version": "${version}",
+  "name": "Inmersive Backpack",
+  "description": "Mochila de viajero con modelo 3D en la espalda, farol colgante con luz, manta de campana para dormir en el suelo y guia de controles.",
+  "authors": ["Climent"],
+  "license": "MIT",
+  "icon": "assets/inmersivebackpack/textures/item/smart_backpack.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.climent.inmersivebackpack.InmersiveBackpackMod"],
+    "client": ["net.climent.inmersivebackpack.client.InmersiveBackpackClient"]
+  },
+  "mixins": ["inmersivebackpack.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

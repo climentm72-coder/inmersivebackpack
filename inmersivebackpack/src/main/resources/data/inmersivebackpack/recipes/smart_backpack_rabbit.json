@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "smart_backpack",
+  "pattern": [
+    "HLH",
+    "HCS",
+    "HLI"
+  ],
+  "key": {
+    "H": { "item": "minecraft:rabbit_hide" },
+    "L": { "item": "minecraft:leather" },
+    "C": { "item": "minecraft:chest" },
+    "S": { "item": "minecraft:string" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "result": {
+    "item": "inmersivebackpack:smart_backpack_rabbit",
+    "count": 1
+  }
+}

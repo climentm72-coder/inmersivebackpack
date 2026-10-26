@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:beds",
+    {
+      "id": "#minecraft:wool_carpets",
+      "required": false
+    }
+  ]
+}
