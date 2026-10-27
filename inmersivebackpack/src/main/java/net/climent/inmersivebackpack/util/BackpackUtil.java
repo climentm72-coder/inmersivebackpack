@@ -15,11 +15,15 @@ public final class BackpackUtil {
     }
 
     /**
-     * Indice (en el inventario del jugador) de la primera mochila que lleva encima:
-     * barra rapida e inventario (0-35) o mano secundaria (40). -1 si no lleva ninguna.
+     * Índice (en el inventario del jugador) de la primera mochila que lleva encima:
+     * ranura dedicada (41), barra rápida e inventario (0-35) o mano secundaria (40). -1 si no lleva ninguna.
      */
     public static int findWornIndex(PlayerEntity player) {
         PlayerInventory inv = player.getInventory();
+        // Primero comprobamos la ranura exclusiva de la mochila (41)
+        if (inv.getStack(41).getItem() instanceof SmartBackpackItem) {
+            return 41;
+        }
         for (int i = 0; i < inv.main.size(); i++) {
             if (inv.getStack(i).getItem() instanceof SmartBackpackItem) {
                 return i;
