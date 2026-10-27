@@ -1,3 +1,4 @@
+
 package net.climent.inmersivebackpack.screen;
 
 import net.climent.inmersivebackpack.InmersiveBackpackMod;
@@ -13,13 +14,14 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 
 /**
- * Menu de la mochila: 57 slots de mochila + 36 del jugador = 93 slots.
+ * Menu de la mochila: 59 slots de mochila + 36 del jugador = 95 slots.
  *
- *   indices   0..53  cofre doble
- *   indices  54..55  correas de herramientas
- *   indice   56      manta
- *   indices  57..83  inventario del jugador (27)
- *   indices  84..92  barra rapida (9)
+ *   indices   0..53   cofre doble
+ *   indices  54..55   correas de herramientas
+ *   indices  56..57   soportes para faroles
+ *   indice     58     manta / cama
+ *   indices  59..85   inventario del jugador (27)
+ *   indices  86..94   barra rapida (9)
  */
 public class BackpackScreenHandler extends ScreenHandler {
 
@@ -29,13 +31,13 @@ public class BackpackScreenHandler extends ScreenHandler {
     public static final int GRID_Y = 18;
     public static final int GRID_COLUMNS = 9;
     public static final int GRID_ROWS = 6;
-    public static final int EXTRAS_Y = GRID_Y + GRID_ROWS * SLOT_SIZE + 6;   // fila de correas + manta
+    public static final int EXTRAS_Y = GRID_Y + GRID_ROWS * SLOT_SIZE + 6;   // fila de correas, faroles y manta
     public static final int PLAYER_INV_Y = EXTRAS_Y + SLOT_SIZE + 14;
     public static final int HOTBAR_Y = PLAYER_INV_Y + 58;
     public static final int BACKGROUND_WIDTH = 176;
     public static final int BACKGROUND_HEIGHT = HOTBAR_Y + SLOT_SIZE + 7;
 
-    private static final int PLAYER_SLOTS_START = BackpackInventory.TOTAL_SIZE; // 57
+    private static final int PLAYER_SLOTS_START = BackpackInventory.TOTAL_SIZE; // 59
 
     private final BackpackInventory inventory;
     /** Stack real de la mochila (en el cliente es EMPTY). */
@@ -53,7 +55,7 @@ public class BackpackScreenHandler extends ScreenHandler {
 
     /** Constructor del SERVIDOR. */
     public BackpackScreenHandler(int syncId, PlayerInventory playerInventory,
-                                 BackpackInventory inventory, ItemStack backpackStack, int lockedIndex) {
+                                  BackpackInventory inventory, ItemStack backpackStack, int lockedIndex) {
         super(InmersiveBackpackMod.BACKPACK_SCREEN_HANDLER, syncId);
         checkSize(inventory, BackpackInventory.TOTAL_SIZE);
         this.inventory = inventory;
@@ -73,11 +75,15 @@ public class BackpackScreenHandler extends ScreenHandler {
         this.addSlot(new BackpackSlot(inventory, BackpackInventory.TOOL_SLOT_START, GRID_X, EXTRAS_Y));
         this.addSlot(new BackpackSlot(inventory, BackpackInventory.TOOL_SLOT_START + 1, GRID_X + SLOT_SIZE, EXTRAS_Y));
 
-        // 3. Manta de campana (indice 56), alineada a la derecha
+        // 3. Soportes para faroles (indices 56 y 57), justo al lado
+        this.addSlot(new BackpackSlot(inventory, BackpackInventory.LANTERN_SLOT_START, GRID_X + 2 * SLOT_SIZE, EXTRAS_Y));
+        this.addSlot(new BackpackSlot(inventory, BackpackInventory.LANTERN_SLOT_START + 1, GRID_X + 3 * SLOT_SIZE, EXTRAS_Y));
+
+        // 4. Manta de campana / cama (indice 58), alineada a la derecha
         this.addSlot(new BackpackSlot(inventory, BackpackInventory.BEDROLL_SLOT,
                 GRID_X + 8 * SLOT_SIZE, EXTRAS_Y));
 
-        // 4. Inventario del jugador (3 filas) y barra rapida
+        // 5. Inventario del jugador (3 filas) y barra rapida
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new PlayerSlot(playerInventory, col + row * 9 + 9,
@@ -104,7 +110,7 @@ public class BackpackScreenHandler extends ScreenHandler {
 
         @Override
         public int getMaxItemCount() {
-            // Correas y manta: un solo item por casilla
+            // Extras (herramientas, faroles y manta): un solo item por casilla
             return this.getIndex() >= BackpackInventory.TOOL_SLOT_START ? 1 : super.getMaxItemCount();
         }
     }
@@ -131,7 +137,6 @@ public class BackpackScreenHandler extends ScreenHandler {
 
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        // Cambio con tecla numerica o tecla F: impide arrastrar la mochila abierta fuera de su sitio.
         if (actionType == SlotActionType.SWAP) {
             if (button == lockedIndex || (lockedIndex < 0 && button == 40)) {
                 return;
@@ -140,11 +145,6 @@ public class BackpackScreenHandler extends ScreenHandler {
         super.onSlotClick(slotIndex, button, actionType, player);
     }
 
-    /**
-     * Shift + clic.
-     * Seguridad: una mochila JAMAS se mueve con shift-click (ni dentro ni fuera de si misma),
-     * asi no puede introducirse en su propio inventario ni generar bucles de duplicacion.
-     */
     @Override
     public ItemStack quickMove(PlayerEntity player, int slotIndex) {
         Slot slot = this.slots.get(slotIndex);
@@ -153,7 +153,6 @@ public class BackpackScreenHandler extends ScreenHandler {
         }
         ItemStack stack = slot.getStack();
 
-        // BLOQUEO ESTRICTO: cualquier mochila queda inmovil con shift-click
         if (stack.getItem() instanceof SmartBackpackItem) {
             return ItemStack.EMPTY;
         }
@@ -161,14 +160,17 @@ public class BackpackScreenHandler extends ScreenHandler {
         ItemStack original = stack.copy();
 
         if (slotIndex < PLAYER_SLOTS_START) {
-            // Mochila -> jugador (de atras hacia delante, como un cofre normal)
+            // Mochila -> jugador
             if (!this.insertItem(stack, PLAYER_SLOTS_START, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else {
-            // Jugador -> mochila. Orden: manta, correas de herramientas, cofre.
-            // insertItem respeta canInsert de cada slot, asi que solo entra lo valido.
+            // Jugador -> mochila. Orden: manta, faroles, herramientas, cofre.
             boolean moved = this.insertItem(stack, BackpackInventory.BEDROLL_SLOT, BackpackInventory.BEDROLL_SLOT + 1, false);
+            if (!stack.isEmpty()) {
+                moved |= this.insertItem(stack, BackpackInventory.LANTERN_SLOT_START,
+                        BackpackInventory.LANTERN_SLOT_START + BackpackInventory.LANTERN_SLOT_COUNT, false);
+            }
             if (!stack.isEmpty()) {
                 moved |= this.insertItem(stack, BackpackInventory.TOOL_SLOT_START,
                         BackpackInventory.TOOL_SLOT_START + BackpackInventory.TOOL_SLOT_COUNT, false);
@@ -189,11 +191,10 @@ public class BackpackScreenHandler extends ScreenHandler {
         return original;
     }
 
-    /** Cierra el menu si el jugador ya no sostiene esa mochila (se la quitan, muere, la tira...). */
     @Override
     public boolean canUse(PlayerEntity player) {
         if (backpackStack.isEmpty()) {
-            return true; // cliente
+            return true;
         }
         ItemStack held = lockedIndex >= 0
                 ? player.getInventory().getStack(lockedIndex)
@@ -204,7 +205,7 @@ public class BackpackScreenHandler extends ScreenHandler {
     @Override
     public void onClosed(PlayerEntity player) {
         super.onClosed(player);
-        inventory.onClose(player); // guardado final en el NBT
+        inventory.onClose(player);
     }
 
     public BackpackInventory getBackpackInventory() {
