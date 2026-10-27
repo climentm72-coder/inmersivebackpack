@@ -6,6 +6,9 @@
   "mixins": [
     "LivingEntityMixin"
   ],
+  "client": [
+    "CameraMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
