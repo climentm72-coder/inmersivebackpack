@@ -1,12 +1,13 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "net.climent.inmersivebackpack.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "LivingEntityMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  }
+    "required": true,
+    "minVersion": "0.8",
+    "package": "net.climent.inmersivebackpack.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "LivingEntityMixin",
+        "PlayerScreenHandlerMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
 }
