@@ -1,3 +1,6 @@
+Actualiza tu archivo `InmersiveBackpackMod.java` completo con este código para incluir el canal de red que recibe la señal de la tecla y abre la mochila equipada en la ranura 41:
+
+```java
 package net.climent.inmersivebackpack;
 
 import net.climent.inmersivebackpack.item.SmartBackpackItem;
@@ -5,12 +8,21 @@ import net.climent.inmersivebackpack.screen.BackpackScreenHandler;
 import net.climent.inmersivebackpack.sleep.BedrollManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +35,8 @@ public class InmersiveBackpackMod implements ModInitializer {
 
     public static final String MOD_ID = "inmersivebackpack";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+    public static final Identifier OPEN_BACKPACK_PACKET_ID = id("open_backpack_slot");
 
     /**
      * Mochila: maxCount(1) -> no apilable.
@@ -47,7 +61,6 @@ public class InmersiveBackpackMod implements ModInitializer {
 
         // 2. Tipo de menu. Usamos ExtendedScreenHandlerType (Fabric API) porque el servidor
         //    debe enviar datos extra al abrir el menu (el slot de la mochila bloqueada).
-        //    ScreenHandlerRegistry esta obsoleto, por eso no se usa.
         BACKPACK_SCREEN_HANDLER = Registry.register(
                 Registries.SCREEN_HANDLER,
                 id("smart_backpack"),
@@ -60,6 +73,33 @@ public class InmersiveBackpackMod implements ModInitializer {
         // 4. Sistema de la manta de campana
         BedrollManager.init();
 
+        // 5. Receptor de red para abrir la mochila desde la ranura de la espalda con tecla
+        ServerPlayNetworking.registerGlobalReceiver(OPEN_BACKPACK_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            server.execute(() -> {
+                ItemStack backpackStack = player.getInventory().getStack(41);
+                if (!backpackStack.isEmpty() && backpackStack.getItem() instanceof SmartBackpackItem) {
+                    player.openHandledScreen(new ExtendedScreenHandlerFactory() {
+                        @Override
+                        public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                            buf.writeInt(-1);
+                        }
+
+                        @Override
+                        public Text getDisplayName() {
+                            return backpackStack.getName();
+                        }
+
+                        @Override
+                        public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+                            return new BackpackScreenHandler(syncId, playerInventory, new net.climent.inmersivebackpack.inventory.BackpackInventory(backpackStack), backpackStack, -1);
+                        }
+                    });
+                }
+            });
+        });
+
         LOGGER.info("Inmersive Backpack cargado: Mochila Medieval de Viajero registrada.");
     }
 }
+
+```
