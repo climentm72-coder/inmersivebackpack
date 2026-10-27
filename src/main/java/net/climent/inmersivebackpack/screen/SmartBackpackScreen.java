@@ -9,8 +9,8 @@ import net.minecraft.text.Text;
 
 /**
  * Pantalla de la mochila (solo cliente).
- * Dibuja el panel y cada casilla por codigo (sin textura de GUI), asi que no hace falta
- * ningun PNG de interfaz: cofre doble (54), 2 correas de herramientas y la manta.
+ * Dibuja el panel y cada casilla por codigo (sin textura de GUI):
+ * cofre doble (54), 2 correas de herramientas, 2 soportes para faroles y la manta.
  */
 public class SmartBackpackScreen extends HandledScreen<BackpackScreenHandler> {
 
@@ -22,8 +22,9 @@ public class SmartBackpackScreen extends HandledScreen<BackpackScreenHandler> {
     private static final int SLOT_DARK = 0xFF373737;
     private static final int SLOT_LIGHT = 0xFFFFFFFF;
     private static final int SLOT_FACE = 0xFF8B8B8B;
-    private static final int SLOT_FACE_TOOL = 0xFF7F93AA;    // azulado: correas
-    private static final int SLOT_FACE_BEDROLL = 0xFFAA8F7F; // rojizo: manta
+    private static final int SLOT_FACE_TOOL = 0xFF7F93AA;   // azulado: correas de herramientas
+    private static final int SLOT_FACE_LANTERN = 0xFFD4AF37; // dorado/cálido: faroles
+    private static final int SLOT_FACE_BEDROLL = 0xFFAA8F7F; // rojizo: manta / cama
     private static final int LABEL_COLOR = 0x404040;
 
     public SmartBackpackScreen(BackpackScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -53,12 +54,14 @@ public class SmartBackpackScreen extends HandledScreen<BackpackScreenHandler> {
         context.fill(x0 + 3, y0 + 3, x0 + w - 1, y0 + h - 1, PANEL_SHADOW);
         context.fill(x0 + 3, y0 + 3, x0 + w - 3, y0 + h - 3, PANEL_FACE);
 
-        // Fondo de cada casilla (cofre, correas, manta y jugador)
+        // Fondo de cada casilla (cofre, herramientas, faroles, manta y jugador)
         for (Slot slot : this.handler.slots) {
             int face = SLOT_FACE;
             if (slot.inventory instanceof BackpackInventory) {
                 if (BackpackInventory.isToolSlot(slot.getIndex())) {
                     face = SLOT_FACE_TOOL;
+                } else if (BackpackInventory.isLanternSlot(slot.getIndex())) {
+                    face = SLOT_FACE_LANTERN;
                 } else if (BackpackInventory.isBedrollSlot(slot.getIndex())) {
                     face = SLOT_FACE_BEDROLL;
                 }
@@ -73,20 +76,10 @@ public class SmartBackpackScreen extends HandledScreen<BackpackScreenHandler> {
         context.fill(x + 1, y + 1, x + 17, y + 17, face);      // interior
     }
 
-    /** Etiquetas de las casillas especiales (coordenadas relativas al panel). */
     @Override
     protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
-        super.drawForeground(context, mouseX, mouseY); // titulo + "Inventario"
+        super.drawForeground(context, mouseX, mouseY);
 
-        int labelY = BackpackScreenHandler.EXTRAS_Y + 5;
-        Text tools = Text.translatable("container.inmersivebackpack.tool_straps");
-        Text bedroll = Text.translatable("container.inmersivebackpack.bedroll");
-
-        context.drawText(this.textRenderer, tools, BackpackScreenHandler.GRID_X + 2 * BackpackScreenHandler.SLOT_SIZE + 6,
-                labelY, LABEL_COLOR, false);
-
-        int bedrollSlotX = BackpackScreenHandler.GRID_X + 8 * BackpackScreenHandler.SLOT_SIZE;
-        context.drawText(this.textRenderer, bedroll, bedrollSlotX - 4 - this.textRenderer.getWidth(bedroll),
-                labelY, LABEL_COLOR, false);
+        // Opcional: si quieres añadir textos o etiquetas flotantes para las secciones inferiores, puedes gestionarlo aquí.
     }
 }
