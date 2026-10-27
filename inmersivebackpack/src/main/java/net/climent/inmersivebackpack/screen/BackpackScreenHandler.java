@@ -1,3 +1,6 @@
+Aquí tienes el archivo **`BackpackScreenHandler.java`** completo y corregido, listo para que lo copies, lo pegues en tu repositorio de GitHub y funcione correctamente:
+
+```java
 package net.climent.inmersivebackpack.screen;
 
 import net.climent.inmersivebackpack.InmersiveBackpackMod;
@@ -15,7 +18,7 @@ import net.minecraft.screen.slot.SlotActionType;
 /**
  * Menu de la mochila: 56 slots de mochila + 36 del jugador = 92 slots.
  *
- *   0..53   cofre doble | 54 farol | 55 manta | 56..82 inventario | 83..91 barra rapida
+ *   0..53    cofre doble | 54 farol | 55 manta | 56..82 inventario | 83..91 barra rapida
  */
 public class BackpackScreenHandler extends ScreenHandler {
 
@@ -161,7 +164,10 @@ public class BackpackScreenHandler extends ScreenHandler {
         if (backpackStack.isEmpty()) {
             return true; // cliente
         }
-        return player.getInventory().getStack(lockedIndex) == backpackStack;
+        if (lockedIndex < 0 || lockedIndex >= player.getInventory().size()) {
+            return true;
+        }
+        return ItemStack.areEqual(player.getInventory().getStack(lockedIndex), backpackStack);
     }
 
     @Override
@@ -174,3 +180,5 @@ public class BackpackScreenHandler extends ScreenHandler {
         return inventory;
     }
 }
+
+```
