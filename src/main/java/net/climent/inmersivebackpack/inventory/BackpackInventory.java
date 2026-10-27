@@ -14,11 +14,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 /**
- * Inventario de la mochila: 57 casillas.
+ * Inventario de la mochila: 59 casillas.
  *
  *   0 .. 53  -> cofre doble (54)
  *  54 .. 55  -> correas para herramientas (2)
- *  56        -> manta de campana (1)
+ *  56 .. 57  -> soportes para faroles (2)
+ *  58        -> manta de campana / cama (1)
  *
  * Los datos se guardan en el NBT del propio ItemStack (clave "SmartBackpack"),
  * asi que viajan con la mochila: se puede soltar, guardar en un cofre, etc.
@@ -28,14 +29,20 @@ public class BackpackInventory extends SimpleInventory {
     public static final int MAIN_SIZE = 54;
     public static final int TOOL_SLOT_START = 54;
     public static final int TOOL_SLOT_COUNT = 2;
-    public static final int BEDROLL_SLOT = 56;
-    public static final int TOTAL_SIZE = 57;
+    public static final int LANTERN_SLOT_START = 56;
+    public static final int LANTERN_SLOT_COUNT = 2;
+    public static final int BEDROLL_SLOT = 58;
+    public static final int TOTAL_SIZE = 59;
 
     private static final String NBT_KEY = "SmartBackpack";
 
     /** Tag de items que se aceptan como manta (editable por datapack). */
     public static final TagKey<Item> BEDROLLS =
             TagKey.of(RegistryKeys.ITEM, new Identifier("inmersivebackpack", "bedrolls"));
+
+    /** Tag de items que se aceptan como faroles (editable por datapack). */
+    public static final TagKey<Item> LANTERNS =
+            TagKey.of(RegistryKeys.ITEM, new Identifier("inmersivebackpack", "lanterns"));
 
     /** ItemStack real de la mochila donde se persiste el contenido (vacio en el cliente). */
     private final ItemStack backing;
@@ -63,12 +70,20 @@ public class BackpackInventory extends SimpleInventory {
         return slot >= TOOL_SLOT_START && slot < TOOL_SLOT_START + TOOL_SLOT_COUNT;
     }
 
+    public static boolean isLanternSlot(int slot) {
+        return slot >= LANTERN_SLOT_START && slot < LANTERN_SLOT_START + LANTERN_SLOT_COUNT;
+    }
+
     public static boolean isBedrollSlot(int slot) {
         return slot == BEDROLL_SLOT;
     }
 
     public static boolean isBedroll(ItemStack stack) {
         return stack.isIn(BEDROLLS);
+    }
+
+    public static boolean isLantern(ItemStack stack) {
+        return stack.isIn(LANTERNS);
     }
 
     /** Herramientas (todo lo que tenga durabilidad) mas algunos utilitarios. */
@@ -91,6 +106,9 @@ public class BackpackInventory extends SimpleInventory {
         if (isBedrollSlot(slot)) {
             return isBedroll(stack);
         }
+        if (isLanternSlot(slot)) {
+            return isLantern(stack);
+        }
         if (isToolSlot(slot)) {
             return isToolOrUtility(stack);
         }
@@ -99,7 +117,6 @@ public class BackpackInventory extends SimpleInventory {
 
     // ------------------------------------------------------------------ persistencia NBT
 
-    /** Guarda automaticamente cada vez que cambia algo (setStack, removeStack, etc.). */
     @Override
     public void markDirty() {
         super.markDirty();
@@ -113,7 +130,6 @@ public class BackpackInventory extends SimpleInventory {
         save();
     }
 
-    /** Escribe las 57 casillas en el NBT de la mochila con Inventories.writeNbt. */
     public void save() {
         if (backing.isEmpty()) {
             return;
@@ -123,7 +139,7 @@ public class BackpackInventory extends SimpleInventory {
             list.set(i, getStack(i));
         }
         NbtCompound tag = new NbtCompound();
-        Inventories.writeNbt(tag, list, false); // false = no escribe "Items" si esta todo vacio
+        Inventories.writeNbt(tag, list, false);
         if (tag.isEmpty()) {
             backing.removeSubNbt(NBT_KEY);
         } else {
@@ -131,7 +147,6 @@ public class BackpackInventory extends SimpleInventory {
         }
     }
 
-    /** Lee las 57 casillas del NBT de la mochila con Inventories.readNbt. */
     private void load() {
         if (backing.isEmpty()) {
             return;
@@ -152,7 +167,6 @@ public class BackpackInventory extends SimpleInventory {
         }
     }
 
-    /** Lee solo la manta de una mochila sin montar un inventario completo. */
     public static ItemStack readBedroll(ItemStack backpack) {
         NbtCompound tag = backpack.getSubNbt(NBT_KEY);
         if (tag == null) {
