@@ -17,7 +17,7 @@ Con GitHub Actions (ver .github/workflows/build.yml) o a mano: JDK 17 + Gradle 8
     gradle wrapper --gradle-version 8.6
     ./gradlew build
 
-El .jar queda en `build/libs/inmersivebackpack-1.0.0.jar` (no uses el `-sources`).
+El .jar queda en `build/libs/inmersivebackpack-1.1.0.jar` (no uses el `-sources`).
 
 ## Ajustes
 
